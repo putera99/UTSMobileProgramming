@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="cardBackgroundColor">#1E1E1E</color>
+    <color name="cardTextColor">#FFFFFF</color>
+    <color name="cardTextSecondary">#CCCCCC</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="max_temp_color">#FF8A65</color> <!-- Soft orange -->
+    <color name="min_temp_color">#90CAF9</color> <!-- Soft blue -->
+    <color name="forecast_text_color">#FFFFFF</color>
+
+    <color name="card_text_color">#000000</color> <!-- Putih untuk gelap -->
+    <color name="card_secondary_text">#FF8A65</color> <!-- Abu-abu terang -->
+
+</resources>
