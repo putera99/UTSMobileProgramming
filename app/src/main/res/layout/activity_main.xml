@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Weather App"
+            android:text="Weather Forecast"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/white"
