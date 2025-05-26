@@ -156,8 +156,7 @@ public class MainActivity extends AppCompatActivity {
                             String iconUrl = "https:" + condition.getString("icon");
                             Picasso.get().load(iconUrl).into(ivWeatherIcon);
 
-                            // showLoading(false); // Komentar ini tetap di sini agar Anda tahu alasannya tidak di sini.
-                            // Panggil setelah kedua request selesai.
+                            // showLoading(false);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
