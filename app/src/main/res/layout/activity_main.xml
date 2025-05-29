@@ -58,6 +58,56 @@
 
         </androidx.cardview.widget.CardView>
 
+        <!-- CardView: Temperature Unit Toggle -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="@color/cardBackgroundColor">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Temperature Unit:"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/cardTextColor" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="°C"
+                    android:textSize="14sp"
+                    android:textColor="@color/cardTextColor"
+                    android:layout_marginEnd="8dp" />
+
+                <Switch
+                    android:id="@+id/switchTempUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="°F"
+                    android:textSize="14sp"
+                    android:textColor="@color/cardTextColor"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
         <!-- ProgressBar -->
         <ProgressBar
             android:id="@+id/progressBar"
@@ -232,6 +282,15 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/cardTextColor"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Data yang muncul hanya untuk 3 hari ke depan karena menggunakan versi gratis"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    android:textColor="@color/card_secondary_text"
                     android:layout_marginBottom="12dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -241,6 +300,41 @@
                     android:nestedScrollingEnabled="false" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <!-- Developer Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dibuat oleh:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Putera Harri Pratama - 0102523609"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rizki Roihan Soeharto - 0102523613"
+                android:textSize="12sp"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
