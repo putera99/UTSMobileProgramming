@@ -2,12 +2,16 @@ package com.example.utsweatherapp;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,10 +50,12 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView rvForecast;
     private LinearLayout llCurrentWeather;
     private ProgressBar progressBar;
+    private Switch switchTempUnit;
 
     private RequestQueue requestQueue;
     private ForecastAdapter forecastAdapter;
     private List<ForecastItem> forecastList;
+    private boolean isCelsius = true;
 
     private String[] cities = {"Jakarta", "Bandung", "Surabaya", "Bali", "Yogyakarta"};
 
@@ -61,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         initViews();
         setupSpinner();
         setupRecyclerView();
+        setupTempUnitToggle();
 
         requestQueue = Volley.newRequestQueue(this);
 
@@ -85,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         rvForecast = findViewById(R.id.rvForecast);
         llCurrentWeather = findViewById(R.id.llCurrentWeather);
         progressBar = findViewById(R.id.progressBar);
+        switchTempUnit = findViewById(R.id.switchTempUnit);
     }
 
     private void setupSpinner() {
@@ -115,16 +123,66 @@ public class MainActivity extends AppCompatActivity {
         rvForecast.setAdapter(forecastAdapter);
     }
 
+    private void setupTempUnitToggle() {
+        switchTempUnit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isCelsius = !isChecked; // false = Celsius, true = Fahrenheit
+                // Refresh data with new temperature unit
+                String selectedCity = cities[spinnerCity.getSelectedItemPosition()];
+                showLoading(true);
+                getCurrentWeather(selectedCity);
+                getForecast(selectedCity);
+            }
+        });
+    }
+
     private void showLoading(boolean isLoading) {
         if (isLoading) {
             progressBar.setVisibility(View.VISIBLE);
-            llCurrentWeather.setVisibility(View.GONE);
-            rvForecast.setVisibility(View.GONE);
+            fadeOut(llCurrentWeather);
+            fadeOut(rvForecast);
         } else {
             progressBar.setVisibility(View.GONE);
-            llCurrentWeather.setVisibility(View.VISIBLE);
-            rvForecast.setVisibility(View.VISIBLE);
+            fadeIn(llCurrentWeather);
+            fadeIn(rvForecast);
         }
+    }
+
+    private void fadeIn(View view) {
+        AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        fadeIn.setDuration(500);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {}
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        view.startAnimation(fadeIn);
+    }
+
+    private void fadeOut(View view) {
+        AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+        fadeOut.setDuration(300);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        view.startAnimation(fadeOut);
     }
 
     private void getCurrentWeather(String city) {
@@ -141,17 +199,29 @@ public class MainActivity extends AppCompatActivity {
 
                             tvCityName.setText(location.getString("name") + ", " +
                                     location.getString("country"));
-                            tvTemperature.setText(Math.round(current.getDouble("temp_c")) + "°C");
+                            
+                            // Temperature conversion based on unit toggle
+                            double tempC = current.getDouble("temp_c");
+                            double feelsLikeC = current.getDouble("feelslike_c");
+                            
+                            if (isCelsius) {
+                                tvTemperature.setText(Math.round(tempC) + "°C");
+                                tvFeelsLike.setText("Feels like: " + Math.round(feelsLikeC) + "°C");
+                            } else {
+                                double tempF = (tempC * 9/5) + 32;
+                                double feelsLikeF = (feelsLikeC * 9/5) + 32;
+                                tvTemperature.setText(Math.round(tempF) + "°F");
+                                tvFeelsLike.setText("Feels like: " + Math.round(feelsLikeF) + "°F");
+                            }
+                            
                             tvCondition.setText(condition.getString("text"));
                             tvHumidity.setText("Humidity: " + current.getInt("humidity") + "%");
                             tvWindSpeed.setText("Wind: " + current.getDouble("wind_kph") + " km/h " +
                                     current.getString("wind_dir"));
-                            tvFeelsLike.setText("Feels like: " +
-                                    Math.round(current.getDouble("feelslike_c")) + "°C");
                             tvPressure.setText("Pressure: " + current.getDouble("pressure_mb") + " mb");
                             tvVisibility.setText("Visibility: " + current.getDouble("vis_km") + " km");
                             tvUvIndex.setText("UV Index: " + current.getDouble("uv"));
-                            tvLastUpdated.setText("Last updated: " + current.getString("last_updated"));
+                            tvLastUpdated.setText("Last updated: " + getCurrentTime());
 
                             String iconUrl = "https:" + condition.getString("icon");
                             Picasso.get().load(iconUrl).into(ivWeatherIcon);
@@ -168,7 +238,11 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        showError("Error loading weather data");
+                        if (error.networkResponse == null) {
+                            showError("Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.");
+                        } else {
+                            showError("Error loading weather data");
+                        }
                         showLoading(false);
                     }
                 });
@@ -177,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getForecast(String city) {
-        String url = BASE_URL + "forecast.json?key=" + API_KEY + "&q=" + city + "&days=5&aqi=no&alerts=no";
+        String url = BASE_URL + "forecast.json?key=" + API_KEY + "&q=" + city + "&days=3&aqi=no&alerts=no";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -189,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
 
                             forecastList.clear();
 
+                            // Display all data received from server (free plan will return max 3 days)
                             for (int i = 0; i < forecastDays.length(); i++) {
                                 JSONObject day = forecastDays.getJSONObject(i);
                                 JSONObject dayInfo = day.getJSONObject("day");
@@ -196,13 +271,28 @@ public class MainActivity extends AppCompatActivity {
 
                                 String date = day.getString("date");
                                 String dayName = getDayName(date);
-                                double maxTemp = dayInfo.getDouble("maxtemp_c");
-                                double minTemp = dayInfo.getDouble("mintemp_c");
+                                double maxTempC = dayInfo.getDouble("maxtemp_c");
+                                double minTempC = dayInfo.getDouble("mintemp_c");
+                                
+                                // Convert temperature based on unit toggle
+                                double maxTemp, minTemp;
+                                String tempUnit;
+                                
+                                if (isCelsius) {
+                                    maxTemp = maxTempC;
+                                    minTemp = minTempC;
+                                    tempUnit = "°C";
+                                } else {
+                                    maxTemp = (maxTempC * 9/5) + 32;
+                                    minTemp = (minTempC * 9/5) + 32;
+                                    tempUnit = "°F";
+                                }
+                                
                                 String conditionText = condition.getString("text");
                                 String iconUrl = "https:" + condition.getString("icon");
 
                                 ForecastItem item = new ForecastItem(dayName, maxTemp, minTemp,
-                                        conditionText, iconUrl);
+                                        conditionText, iconUrl, tempUnit);
                                 forecastList.add(item);
                             }
 
@@ -219,7 +309,11 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        showError("Error loading forecast data");
+                        if (error.networkResponse == null) {
+                            showError("Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.");
+                        } else {
+                            showError("Error loading forecast data");
+                        }
                         showLoading(false);
                     }
                 });
@@ -238,6 +332,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private String getCurrentTime() {
+        // Format: [date] [month] [year] [time]
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm", Locale.getDefault());
+        Date currentDate = new Date();
+        return outputFormat.format(currentDate);
+    }
+
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
@@ -249,13 +350,15 @@ public class MainActivity extends AppCompatActivity {
         private double minTemp;
         private String condition;
         private String iconUrl;
+        private String tempUnit;
 
-        public ForecastItem(String day, double maxTemp, double minTemp, String condition, String iconUrl) {
+        public ForecastItem(String day, double maxTemp, double minTemp, String condition, String iconUrl, String tempUnit) {
             this.day = day;
             this.maxTemp = maxTemp;
             this.minTemp = minTemp;
             this.condition = condition;
             this.iconUrl = iconUrl;
+            this.tempUnit = tempUnit;
         }
 
         // Getters
@@ -264,5 +367,6 @@ public class MainActivity extends AppCompatActivity {
         public double getMinTemp() { return minTemp; }
         public String getCondition() { return condition; }
         public String getIconUrl() { return iconUrl; }
+        public String getTempUnit() { return tempUnit; }
     }
 }

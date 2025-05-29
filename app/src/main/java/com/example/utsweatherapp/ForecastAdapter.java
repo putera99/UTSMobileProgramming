@@ -34,8 +34,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         MainActivity.ForecastItem item = forecastList.get(position);
 
         holder.tvDay.setText(item.getDay());
-        holder.tvMaxTemp.setText(Math.round(item.getMaxTemp()) + "°");
-        holder.tvMinTemp.setText(Math.round(item.getMinTemp()) + "°");
+        holder.tvMaxTemp.setText(Math.round(item.getMaxTemp()) + item.getTempUnit());
+        holder.tvMinTemp.setText(Math.round(item.getMinTemp()) + item.getTempUnit());
         holder.tvCondition.setText(item.getCondition());
 
         Picasso.get().load(item.getIconUrl()).into(holder.ivIcon);
